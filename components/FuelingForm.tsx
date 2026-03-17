@@ -11,12 +11,25 @@ interface Props {
 }
 
 function today() {
-  return new Date().toISOString().slice(0, 10);
+  const d = new Date();
+  return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
 }
 
 function nowTime() {
   const d = new Date();
-  return d.toTimeString().slice(0, 5);
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+// Convert dd.mm.yyyy → yyyy-mm-dd for the API
+function displayToIso(display: string): string {
+  const [d, m, y] = display.split('.');
+  return `${y}-${m}-${d}`;
+}
+
+// Convert yyyy-mm-dd → dd.mm.yyyy for display
+function isoToDisplay(iso: string): string {
+  const [y, m, d] = iso.split('-');
+  return `${d}.${m}.${y}`;
 }
 
 export default function FuelingForm({ vehicleId, initial }: Props) {
@@ -24,7 +37,7 @@ export default function FuelingForm({ vehicleId, initial }: Props) {
   const { t } = useTranslation();
   const isEdit = !!initial;
 
-  const [date, setDate] = useState(initial?.date ?? today());
+  const [date, setDate] = useState(initial?.date ? isoToDisplay(initial.date) : today());
   const [time, setTime] = useState(initial?.time ?? nowTime());
   const [station, setStation] = useState(initial?.station_name ?? '');
   const [amount, setAmount] = useState(initial?.fuel_amount_l?.toString() ?? '');
@@ -52,7 +65,7 @@ export default function FuelingForm({ vehicleId, initial }: Props) {
       method: isEdit ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        date,
+        date: displayToIso(date),
         time,
         station_name: station,
         fuel_amount_l: parseFloat(amount),
@@ -89,10 +102,12 @@ export default function FuelingForm({ vehicleId, initial }: Props) {
           <label htmlFor="fueling-date" className="block text-sm font-medium text-gray-700 mb-1">{t('date')}</label>
           <input
             id="fueling-date"
-            type="date"
+            type="text"
             value={date}
             onChange={e => setDate(e.target.value)}
             required
+            placeholder="dd.mm.yyyy"
+            pattern="\d{2}\.\d{2}\.\d{4}"
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -100,10 +115,12 @@ export default function FuelingForm({ vehicleId, initial }: Props) {
           <label htmlFor="fueling-time" className="block text-sm font-medium text-gray-700 mb-1">{t('time')}</label>
           <input
             id="fueling-time"
-            type="time"
+            type="text"
             value={time}
             onChange={e => setTime(e.target.value)}
             required
+            placeholder="hh:mm"
+            pattern="\d{2}:\d{2}"
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>

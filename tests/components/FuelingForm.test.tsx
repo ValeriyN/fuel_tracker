@@ -130,6 +130,7 @@ describe('FuelingForm — edit mode', () => {
 
   it('pre-fills fields with initial values', () => {
     renderForm({ initial: EXISTING_FUELING });
+    expect(screen.getByLabelText('Date')).toHaveValue('17.03.2026');
     expect(screen.getByLabelText('Fuel Station')).toHaveValue('BP');
     expect(screen.getByLabelText('Mileage (km)')).toHaveValue(120000);
     expect(screen.getByLabelText('Amount (L)')).toHaveValue(35);
