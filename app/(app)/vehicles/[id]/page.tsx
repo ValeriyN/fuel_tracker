@@ -6,6 +6,7 @@ import { getLanguage } from '@/lib/language';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import FuelingTable from '@/components/FuelingTable';
+import AddFuelingModal from '@/components/AddFuelingModal';
 
 export default async function VehiclePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -42,12 +43,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
             {vehicle.type === 'car' ? t('car') : t('motorcycle')} &middot; {vehicle.fuel_type}
           </p>
         </div>
-        <Link
-          href={`/vehicles/${vehicle.id}/fuelings/new`}
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-        >
-          {t('addFueling')}
-        </Link>
+        <AddFuelingModal vehicleId={vehicle.id} />
       </div>
 
       {fuelings.length > 0 && (

@@ -8,6 +8,7 @@ import { useTranslation } from './LanguageProvider';
 interface Props {
   vehicleId: number;
   initial?: Fueling;
+  onSuccess?: () => void;
 }
 
 function today() {
@@ -32,7 +33,7 @@ function isoToDisplay(iso: string): string {
   return `${d}.${m}.${y}`;
 }
 
-export default function FuelingForm({ vehicleId, initial }: Props) {
+export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
   const router = useRouter();
   const { t } = useTranslation();
   const isEdit = !!initial;
@@ -83,8 +84,12 @@ export default function FuelingForm({ vehicleId, initial }: Props) {
       return;
     }
 
-    router.push(`/vehicles/${vehicleId}`);
-    router.refresh();
+    if (onSuccess) {
+      onSuccess();
+    } else {
+      router.push(`/vehicles/${vehicleId}`);
+      router.refresh();
+    }
   }
 
   async function handleDelete() {
