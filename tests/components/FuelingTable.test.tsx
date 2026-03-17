@@ -79,12 +79,10 @@ describe('FuelingTable', () => {
     expect(dashes.length).toBeGreaterThan(0);
   });
 
-  it('renders correct Edit links for each row', () => {
+  it('renders Edit button for each row', () => {
     renderTable();
-    const editLinks = screen.getAllByRole('link', { name: 'Edit' });
-    expect(editLinks).toHaveLength(2);
-    expect(editLinks[0]).toHaveAttribute('href', '/vehicles/10/fuelings/1/edit');
-    expect(editLinks[1]).toHaveAttribute('href', '/vehicles/10/fuelings/2/edit');
+    const editButtons = screen.getAllByRole('button', { name: 'Edit' });
+    expect(editButtons).toHaveLength(2);
   });
 
   it('renders headers in Ukrainian when language is uk', () => {

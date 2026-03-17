@@ -2,8 +2,16 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import DatePicker, { registerLocale } from 'react-datepicker';
+import { IMaskInput, IMask } from 'react-imask';
+import { enGB } from 'date-fns/locale/en-GB';
+import { uk } from 'date-fns/locale/uk';
+import 'react-datepicker/dist/react-datepicker.css';
 import { Fueling } from '@/lib/types';
 import { useTranslation } from './LanguageProvider';
+
+registerLocale('en', enGB);
+registerLocale('uk', uk);
 
 interface Props {
   vehicleId: number;
@@ -11,34 +19,29 @@ interface Props {
   onSuccess?: () => void;
 }
 
-function today() {
-  const d = new Date();
-  return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
-}
-
 function nowTime() {
   const d = new Date();
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
-// Convert dd.mm.yyyy → yyyy-mm-dd for the API
-function displayToIso(display: string): string {
-  const [d, m, y] = display.split('.');
-  return `${y}-${m}-${d}`;
+function parseIsoDate(iso: string): Date {
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(y, m - 1, d);
 }
 
-// Convert yyyy-mm-dd → dd.mm.yyyy for display
-function isoToDisplay(iso: string): string {
-  const [y, m, d] = iso.split('-');
-  return `${d}.${m}.${y}`;
+function dateToIso(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 
 export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const isEdit = !!initial;
 
-  const [date, setDate] = useState(initial?.date ? isoToDisplay(initial.date) : today());
+  const [date, setDate] = useState<Date>(initial?.date ? parseIsoDate(initial.date) : new Date());
   const [time, setTime] = useState(initial?.time ?? nowTime());
   const [station, setStation] = useState(initial?.station_name ?? '');
   const [amount, setAmount] = useState(initial?.fuel_amount_l?.toString() ?? '');
@@ -66,7 +69,7 @@ export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
       method: isEdit ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        date: displayToIso(date),
+        date: dateToIso(date),
         time,
         station_name: station,
         fuel_amount_l: parseFloat(amount),
@@ -96,8 +99,12 @@ export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
     if (!confirm(t('confirmDelete'))) return;
     setLoading(true);
     await fetch(`/api/vehicles/${vehicleId}/fuelings/${initial!.id}`, { method: 'DELETE' });
-    router.push(`/vehicles/${vehicleId}`);
-    router.refresh();
+    if (onSuccess) {
+      onSuccess();
+    } else {
+      router.push(`/vehicles/${vehicleId}`);
+      router.refresh();
+    }
   }
 
   return (
@@ -105,27 +112,28 @@ export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor="fueling-date" className="block text-sm font-medium text-gray-700 mb-1">{t('date')}</label>
-          <input
+          <DatePicker
             id="fueling-date"
-            type="text"
-            value={date}
-            onChange={e => setDate(e.target.value)}
+            selected={date}
+            onChange={d => d && setDate(d)}
+            dateFormat="dd.MM.yyyy"
+            locale={lang}
             required
-            placeholder="dd.mm.yyyy"
-            pattern="\d{2}\.\d{2}\.\d{4}"
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
         <div>
           <label htmlFor="fueling-time" className="block text-sm font-medium text-gray-700 mb-1">{t('time')}</label>
-          <input
+          <IMaskInput
             id="fueling-time"
-            type="text"
+            mask="HH:mm"
+            blocks={{
+              HH: { mask: IMask.MaskedRange, from: 0, to: 23, maxLength: 2 },
+              mm: { mask: IMask.MaskedRange, from: 0, to: 59, maxLength: 2 },
+            }}
             value={time}
-            onChange={e => setTime(e.target.value)}
-            required
-            placeholder="hh:mm"
-            pattern="\d{2}:\d{2}"
+            onAccept={(v: string) => setTime(v)}
+            placeholder="HH:mm"
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>

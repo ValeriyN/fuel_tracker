@@ -1,7 +1,9 @@
 'use client';
 
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Fueling } from '@/lib/types';
-import Link from 'next/link';
+import FuelingForm from './FuelingForm';
 import { useTranslation } from './LanguageProvider';
 
 interface Props {
@@ -11,8 +13,27 @@ interface Props {
 
 export default function FuelingTable({ fuelings, vehicleId }: Props) {
   const { t } = useTranslation();
+  const router = useRouter();
+  const [editing, setEditing] = useState<Fueling | null>(null);
+
+  const close = useCallback(() => setEditing(null), []);
+
+  useEffect(() => {
+    if (!editing) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') close();
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [editing, close]);
+
+  function handleSuccess() {
+    close();
+    router.refresh();
+  }
 
   return (
+    <>
     <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
@@ -39,14 +60,18 @@ export default function FuelingTable({ fuelings, vehicleId }: Props) {
                 <td className="px-4 py-3 text-right text-gray-900 font-mono">{f.fuel_amount_l.toFixed(2)}</td>
                 <td className="px-4 py-3 text-right text-gray-900 font-mono">{f.price_per_liter_eur.toFixed(3)}</td>
                 <td className="px-4 py-3 text-right text-gray-900 font-mono font-medium">{f.total_cost_eur.toFixed(2)}</td>
-                <td className="px-4 py-3 text-center">{f.full_tank ? '✓' : ''}</td>
+                <td className="px-4 py-3 text-center">
+                  {f.full_tank && (
+                    <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-100 text-green-700 font-bold text-xs">✓</span>
+                  )}
+                </td>
                 <td className="px-4 py-3 text-right">
-                  <Link
-                    href={`/vehicles/${vehicleId}/fuelings/${f.id}/edit`}
+                  <button
+                    onClick={() => setEditing(f)}
                     className="text-blue-600 hover:underline text-xs"
                   >
                     {t('edit')}
-                  </Link>
+                  </button>
                 </td>
               </tr>
             ))}
@@ -54,5 +79,28 @@ export default function FuelingTable({ fuelings, vehicleId }: Props) {
         </table>
       </div>
     </div>
+
+    {editing && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          onClick={e => { if (e.target === e.currentTarget) close(); }}
+        >
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100">
+              <h2 className="text-lg font-semibold text-gray-900">{t('editFueling')}</h2>
+              <button
+                onClick={close}
+                className="text-gray-400 hover:text-gray-600 transition-colors text-xl leading-none"
+              >
+                ×
+              </button>
+            </div>
+            <div className="px-6 py-5">
+              <FuelingForm vehicleId={vehicleId} initial={editing} onSuccess={handleSuccess} />
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
