@@ -43,7 +43,10 @@ export default function NewVehiclePage() {
   return (
     <div className="max-w-md">
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/vehicles" className="text-gray-400 hover:text-gray-600 transition-colors">
+        <Link href="/vehicles" className="inline-flex items-center gap-1.5 text-gray-500 hover:text-blue-600 transition-colors text-sm font-medium group">
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
           {t('backToVehicles')}
         </Link>
         <h1 className="text-2xl font-bold text-gray-900">{t('addVehicleTitle')}</h1>

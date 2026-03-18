@@ -30,7 +30,7 @@ const translations = {
     car: 'Car',
     motorcycle: 'Motorcycle',
     // New vehicle form
-    backToVehicles: '← Vehicles',
+    backToVehicles: 'Vehicles',
     addVehicleTitle: 'Add Vehicle',
     vehicleName: 'Name',
     namePlaceholder: 'e.g. Honda Civic',
@@ -59,6 +59,8 @@ const translations = {
     dateTime: 'Date & Time',
     station: 'Station',
     mileageKm: 'Mileage (km)',
+    mileageDiff: 'Diff. (km)',
+    days: 'Days',
     amountL: 'Amount (L)',
     pricePerL: 'Price (€/L)',
     totalEur: 'Total (€)',
@@ -82,6 +84,15 @@ const translations = {
     // Fueling pages
     addFuelingTitle: 'Add Fueling',
     editFueling: 'Edit Fueling',
+    // Vehicle card stats
+    maxMileage: 'Total mileage',
+    avgConsumption: 'Avg. consumption',
+    // Edit vehicle modal
+    editVehicle: 'Edit Vehicle',
+    deleteVehicle: 'Delete Vehicle',
+    confirmDeleteVehicle: 'Delete this vehicle and all its fueling records?',
+    failedUpdateVehicle: 'Failed to update vehicle',
+    failedDeleteVehicle: 'Failed to delete vehicle',
   },
   uk: {
     // Nav
@@ -108,7 +119,7 @@ const translations = {
     car: 'Автомобіль',
     motorcycle: 'Мотоцикл',
     // New vehicle form
-    backToVehicles: '← Транспорт',
+    backToVehicles: 'Транспорт',
     addVehicleTitle: 'Додати транспорт',
     vehicleName: 'Назва',
     namePlaceholder: 'напр. Honda Civic',
@@ -137,6 +148,8 @@ const translations = {
     dateTime: 'Дата і час',
     station: 'Станція',
     mileageKm: 'Пробіг (км)',
+    mileageDiff: 'Різн. (км)',
+    days: 'Днів',
     amountL: "Об'єм (л)",
     pricePerL: 'Ціна (€/л)',
     totalEur: 'Сума (€)',
@@ -160,6 +173,15 @@ const translations = {
     // Fueling pages
     addFuelingTitle: 'Додати заправку',
     editFueling: 'Редагувати заправку',
+    // Vehicle card stats
+    maxMileage: 'Загальний пробіг',
+    avgConsumption: 'Сер. витрата',
+    // Edit vehicle modal
+    editVehicle: 'Редагувати транспорт',
+    deleteVehicle: 'Видалити транспорт',
+    confirmDeleteVehicle: 'Видалити цей транспортний засіб і всі записи заправок?',
+    failedUpdateVehicle: 'Помилка оновлення транспортного засобу',
+    failedDeleteVehicle: 'Помилка видалення транспортного засобу',
   },
 } as const;
 

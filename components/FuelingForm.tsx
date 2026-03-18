@@ -46,14 +46,15 @@ export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
   const [station, setStation] = useState(initial?.station_name ?? '');
   const [amount, setAmount] = useState(initial?.fuel_amount_l?.toString() ?? '');
   const [mileage, setMileage] = useState(initial?.mileage_km?.toString() ?? '');
-  const [pricePerL, setPricePerL] = useState(initial?.price_per_liter_eur?.toString() ?? '');
+  const [totalCost, setTotalCost] = useState(initial?.total_cost_eur?.toString() ?? '');
   const [fullTank, setFullTank] = useState(initial?.full_tank ?? true);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
-  const computedTotal =
-    amount && pricePerL
-      ? (parseFloat(amount) * parseFloat(pricePerL)).toFixed(2)
+  const computedPricePerL =
+    amount && totalCost && parseFloat(amount) > 0
+      ? (parseFloat(totalCost) / parseFloat(amount)).toFixed(2)
       : '—';
 
   async function handleSubmit(e: React.FormEvent) {
@@ -74,7 +75,8 @@ export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
         station_name: station,
         fuel_amount_l: parseFloat(amount),
         mileage_km: parseInt(mileage),
-        price_per_liter_eur: parseFloat(pricePerL),
+        price_per_liter_eur: computedPricePerL !== '—' ? parseFloat(computedPricePerL) : 0,
+        total_cost_eur: parseFloat(totalCost),
         full_tank: fullTank,
       }),
     });
@@ -96,7 +98,6 @@ export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
   }
 
   async function handleDelete() {
-    if (!confirm(t('confirmDelete'))) return;
     setLoading(true);
     await fetch(`/api/vehicles/${vehicleId}/fuelings/${initial!.id}`, { method: 'DELETE' });
     if (onSuccess) {
@@ -182,25 +183,25 @@ export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
           />
         </div>
         <div>
-          <label htmlFor="fueling-price" className="block text-sm font-medium text-gray-700 mb-1">{t('pricePerLitre')}</label>
+          <label htmlFor="fueling-total" className="block text-sm font-medium text-gray-700 mb-1">{t('totalCost')} (€)</label>
           <input
-            id="fueling-price"
+            id="fueling-total"
             type="number"
-            value={pricePerL}
-            onChange={e => setPricePerL(e.target.value)}
+            value={totalCost}
+            onChange={e => setTotalCost(e.target.value)}
             required
             min={0}
-            step={0.001}
-            placeholder={t('pricePlaceholder')}
+            step={0.01}
+            placeholder="e.g. 63.00"
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
 
       <div className="bg-gray-50 rounded-xl px-4 py-3 flex justify-between items-center">
-        <span className="text-sm text-gray-600">{t('totalCost')}</span>
+        <span className="text-sm text-gray-600">{t('pricePerLitre')}</span>
         <span className="text-lg font-semibold text-gray-900">
-          {computedTotal !== '—' ? `${computedTotal} €` : '—'}
+          {computedPricePerL !== '—' ? `${computedPricePerL} €` : '—'}
         </span>
       </div>
 
@@ -225,10 +226,10 @@ export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
         >
           {loading ? t('saving') : isEdit ? t('saveChanges') : t('addFuelingTitle')}
         </button>
-        {isEdit && (
+        {isEdit && !confirmingDelete && (
           <button
             type="button"
-            onClick={handleDelete}
+            onClick={() => setConfirmingDelete(true)}
             disabled={loading}
             className="px-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg py-2 text-sm font-medium transition-colors"
           >
@@ -236,6 +237,29 @@ export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
           </button>
         )}
       </div>
+
+      {isEdit && confirmingDelete && (
+        <div className="border border-red-200 bg-red-50 rounded-xl p-4 space-y-3">
+          <p className="text-sm font-medium text-red-700">{t('confirmDelete')}</p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={loading}
+              className="flex-1 bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white text-sm font-medium py-2 rounded-lg transition-colors"
+            >
+              {t('delete')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirmingDelete(false)}
+              className="flex-1 border border-gray-300 text-gray-700 text-sm font-medium py-2 rounded-lg hover:bg-white transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </form>
   );
 }

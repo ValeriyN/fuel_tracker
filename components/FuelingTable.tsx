@@ -42,6 +42,7 @@ export default function FuelingTable({ fuelings, vehicleId }: Props) {
               <th className="px-4 py-3 font-medium text-gray-500 whitespace-nowrap">{t('dateTime')}</th>
               <th className="px-4 py-3 font-medium text-gray-500 whitespace-nowrap">{t('station')}</th>
               <th className="px-4 py-3 font-medium text-gray-500 whitespace-nowrap text-right">{t('mileageKm')}</th>
+              <th className="px-4 py-3 font-medium text-gray-500 whitespace-nowrap text-right">{t('days')}</th>
               <th className="px-4 py-3 font-medium text-gray-500 whitespace-nowrap text-right">{t('amountL')}</th>
               <th className="px-4 py-3 font-medium text-gray-500 whitespace-nowrap text-right">{t('pricePerL')}</th>
               <th className="px-4 py-3 font-medium text-gray-500 whitespace-nowrap text-right">{t('totalEur')}</th>
@@ -50,15 +51,30 @@ export default function FuelingTable({ fuelings, vehicleId }: Props) {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {fuelings.map(f => (
+            {fuelings.map((f, i) => {
+              const prev = fuelings[i + 1];
+              const diff = prev != null ? f.mileage_km - prev.mileage_km : null;
+              const daysDiff = prev != null
+                ? Math.round((new Date(f.date).getTime() - new Date(prev.date).getTime()) / 86400000)
+                : null;
+              return (
               <tr key={f.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-4 py-3 text-gray-900 whitespace-nowrap">
                   {f.date} {f.time}
                 </td>
                 <td className="px-4 py-3 text-gray-700">{f.station_name || <span className="text-gray-400">—</span>}</td>
-                <td className="px-4 py-3 text-right text-gray-900 font-mono">{f.mileage_km.toLocaleString('de-DE')}</td>
+                <td className="px-4 py-3 text-right font-mono">
+                  {diff != null
+                    ? <span className={diff < 0 ? 'text-red-500' : 'text-gray-900'}>{diff}</span>
+                    : <span className="text-gray-400">—</span>}
+                </td>
+                <td className="px-4 py-3 text-right font-mono">
+                  {daysDiff != null
+                    ? <span className="text-gray-900">{daysDiff}</span>
+                    : <span className="text-gray-400">—</span>}
+                </td>
                 <td className="px-4 py-3 text-right text-gray-900 font-mono">{f.fuel_amount_l.toFixed(2)}</td>
-                <td className="px-4 py-3 text-right text-gray-900 font-mono">{f.price_per_liter_eur.toFixed(3)}</td>
+                <td className="px-4 py-3 text-right text-gray-900 font-mono">{f.price_per_liter_eur.toFixed(2)}</td>
                 <td className="px-4 py-3 text-right text-gray-900 font-mono font-medium">{f.total_cost_eur.toFixed(2)}</td>
                 <td className="px-4 py-3 text-center">
                   {f.full_tank && (
@@ -74,7 +90,8 @@ export default function FuelingTable({ fuelings, vehicleId }: Props) {
                   </button>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>

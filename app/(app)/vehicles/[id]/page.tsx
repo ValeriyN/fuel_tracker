@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import FuelingTable from '@/components/FuelingTable';
 import AddFuelingModal from '@/components/AddFuelingModal';
+import EditVehicleModal from '@/components/EditVehicleModal';
 
 export default async function VehiclePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -28,11 +29,18 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
 
   const totalLiters = fuelings.reduce((s, f) => s + f.fuel_amount_l, 0);
   const totalCost = fuelings.reduce((s, f) => s + f.total_cost_eur, 0);
+  const maxMileage = fuelings.length > 0 ? Math.max(...fuelings.map(f => f.mileage_km)) : 0;
+  const minMileage = fuelings.length > 0 ? Math.min(...fuelings.map(f => f.mileage_km)) : 0;
+  const distanceKm = maxMileage - minMileage;
+  const avgConsumption = distanceKm > 0 ? (totalLiters / distanceKm) * 100 : null;
 
   return (
     <div>
       <div className="flex items-center gap-3 mb-1">
-        <Link href="/vehicles" className="text-gray-400 hover:text-gray-600 transition-colors text-sm">
+        <Link href="/vehicles" className="inline-flex items-center gap-1.5 text-gray-500 hover:text-blue-600 transition-colors text-sm font-medium group">
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
           {t('backToVehicles')}
         </Link>
       </div>
@@ -43,15 +51,28 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
             {vehicle.type === 'car' ? t('car') : t('motorcycle')} &middot; {vehicle.fuel_type}
           </p>
         </div>
-        <AddFuelingModal vehicleId={vehicle.id} />
+        <div className="flex items-center gap-2">
+          <EditVehicleModal vehicle={vehicle} />
+          <AddFuelingModal vehicleId={vehicle.id} />
+        </div>
       </div>
 
       {fuelings.length > 0 && (
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-5 gap-4 mb-6">
           <div className="bg-white border border-gray-200 rounded-xl p-4">
             <p className="text-xs text-gray-500 uppercase tracking-wide">{t('fuelingsCount')}</p>
             <p className="text-2xl font-bold text-gray-900 mt-1">{fuelings.length}</p>
           </div>
+          <div className="bg-white border border-gray-200 rounded-xl p-4">
+            <p className="text-xs text-gray-500 uppercase tracking-wide">{t('maxMileage')}</p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">{maxMileage} km</p>
+          </div>
+          {avgConsumption != null && (
+            <div className="bg-white border border-gray-200 rounded-xl p-4">
+              <p className="text-xs text-gray-500 uppercase tracking-wide">{t('avgConsumption')}</p>
+              <p className="text-2xl font-bold text-gray-900 mt-1">{avgConsumption.toFixed(2)} L/100km</p>
+            </div>
+          )}
           <div className="bg-white border border-gray-200 rounded-xl p-4">
             <p className="text-xs text-gray-500 uppercase tracking-wide">{t('totalFuel')}</p>
             <p className="text-2xl font-bold text-gray-900 mt-1">{totalLiters.toFixed(1)} L</p>

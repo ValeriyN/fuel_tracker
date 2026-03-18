@@ -37,13 +37,15 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
 
   const body = await request.json();
-  const { date, time, station_name, fuel_amount_l, mileage_km, price_per_liter_eur, full_tank } = body;
+  const { date, time, station_name, fuel_amount_l, mileage_km, total_cost_eur, full_tank } = body;
 
-  if (!date || !time || fuel_amount_l == null || mileage_km == null || price_per_liter_eur == null) {
+  if (!date || !time || fuel_amount_l == null || mileage_km == null || total_cost_eur == null) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
-  const total_cost_eur = Math.round(fuel_amount_l * price_per_liter_eur * 100) / 100;
+  const price_per_liter_eur = fuel_amount_l > 0
+    ? Math.round((total_cost_eur / fuel_amount_l) * 100) / 100
+    : 0;
 
   const db = getDb();
   const result = db.prepare(`
