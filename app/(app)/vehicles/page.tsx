@@ -4,11 +4,12 @@ import { Vehicle } from '@/lib/types';
 import { getT } from '@/lib/i18n';
 import { getLanguage } from '@/lib/language';
 import Link from 'next/link';
+import AddVehicleModal from '@/components/AddVehicleModal';
 
 interface VehicleStats {
   vehicle_id: number;
   count: number;
-  max_mileage: number | null;
+  total_mileage: number | null;
   total_cost: number | null;
 }
 
@@ -23,7 +24,7 @@ export default async function VehiclesPage() {
 
   const statsRows = db
     .prepare(`
-      SELECT vehicle_id, COUNT(*) as count, MAX(mileage_km) as max_mileage, SUM(total_cost_eur) as total_cost
+      SELECT vehicle_id, COUNT(*) as count, (MAX(mileage_km) - MIN(mileage_km)) as total_mileage, SUM(total_cost_eur) as total_cost
       FROM fuelings
       WHERE vehicle_id IN (SELECT id FROM vehicles WHERE user_id = ?)
       GROUP BY vehicle_id
@@ -36,12 +37,7 @@ export default async function VehiclesPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">{t('myVehicles')}</h1>
-        <Link
-          href="/vehicles/new"
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-        >
-          {t('addVehicle')}
-        </Link>
+        <AddVehicleModal />
       </div>
 
       {vehicles.length === 0 ? (
@@ -76,7 +72,7 @@ export default async function VehiclesPage() {
                     </div>
                     <div>
                       <p className="text-xs text-gray-400">{t('maxMileage')}</p>
-                      <p className="text-sm font-semibold text-gray-800 mt-0.5">{s.max_mileage?.toLocaleString()} km</p>
+                      <p className="text-sm font-semibold text-gray-800 mt-0.5">{s.total_mileage?.toLocaleString()} km</p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-400">{t('totalSpent')}</p>

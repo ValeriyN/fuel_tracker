@@ -29,9 +29,10 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
 
   const totalLiters = fuelings.reduce((s, f) => s + f.fuel_amount_l, 0);
   const totalCost = fuelings.reduce((s, f) => s + f.total_cost_eur, 0);
-  const maxMileage = fuelings.length > 0 ? Math.max(...fuelings.map(f => f.mileage_km)) : 0;
-  const minMileage = fuelings.length > 0 ? Math.min(...fuelings.map(f => f.mileage_km)) : 0;
-  const distanceKm = maxMileage - minMileage;
+  const totalMileage = fuelings.length >= 2
+    ? fuelings[0].mileage_km - fuelings[fuelings.length - 1].mileage_km
+    : 0;
+  const distanceKm = totalMileage;
   const avgConsumption = distanceKm > 0 ? (totalLiters / distanceKm) * 100 : null;
 
   return (
@@ -65,7 +66,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
           </div>
           <div className="bg-white border border-gray-200 rounded-xl p-4">
             <p className="text-xs text-gray-500 uppercase tracking-wide">{t('maxMileage')}</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{maxMileage} km</p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">{totalMileage} km</p>
           </div>
           {avgConsumption != null && (
             <div className="bg-white border border-gray-200 rounded-xl p-4">
