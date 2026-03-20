@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { Fueling } from '@/lib/types';
 import FuelingForm from './FuelingForm';
 import { useTranslation } from './LanguageProvider';
+import { useUnits } from './UnitsProvider';
+import { currencySymbol } from '@/lib/units';
 
 interface Props {
   fuelings: Fueling[];
@@ -13,6 +15,8 @@ interface Props {
 
 export default function FuelingTable({ fuelings, vehicleId }: Props) {
   const { t } = useTranslation();
+  const units = useUnits();
+  const sym = currencySymbol(units.currency);
   const router = useRouter();
   const [editing, setEditing] = useState<Fueling | null>(null);
 
@@ -41,11 +45,11 @@ export default function FuelingTable({ fuelings, vehicleId }: Props) {
             <tr className="bg-gray-50 border-b border-gray-200 text-left">
               <th className="px-4 py-3 font-medium text-gray-500 whitespace-nowrap">{t('dateTime')}</th>
               <th className="px-4 py-3 font-medium text-gray-500 whitespace-nowrap">{t('station')}</th>
-              <th className="px-4 py-3 font-medium text-gray-500 whitespace-nowrap text-right">{t('mileageKm')}</th>
+              <th className="px-4 py-3 font-medium text-gray-500 whitespace-nowrap text-right">{t('mileageKm')} ({units.mileage})</th>
               <th className="px-4 py-3 font-medium text-gray-500 whitespace-nowrap text-right">{t('days')}</th>
-              <th className="px-4 py-3 font-medium text-gray-500 whitespace-nowrap text-right">{t('amountL')}</th>
-              <th className="px-4 py-3 font-medium text-gray-500 whitespace-nowrap text-right">{t('pricePerL')}</th>
-              <th className="px-4 py-3 font-medium text-gray-500 whitespace-nowrap text-right">{t('totalEur')}</th>
+              <th className="px-4 py-3 font-medium text-gray-500 whitespace-nowrap text-right">{t('amountL')} ({units.fuel})</th>
+              <th className="px-4 py-3 font-medium text-gray-500 whitespace-nowrap text-right">{t('pricePerL')} ({sym}/{units.fuel})</th>
+              <th className="px-4 py-3 font-medium text-gray-500 whitespace-nowrap text-right">{t('totalEur')} ({sym})</th>
               <th className="px-4 py-3 font-medium text-gray-500 text-center">{t('full')}</th>
               <th className="px-4 py-3"></th>
             </tr>

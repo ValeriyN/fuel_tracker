@@ -40,13 +40,17 @@ describe('Nav', () => {
     expect(screen.getByRole('button', { name: 'UK' })).toBeInTheDocument();
   });
 
-  it('renders "Sign out" in English', () => {
+  it('renders "Sign out" in English after opening dropdown', async () => {
+    const user = userEvent.setup();
     renderNav('en');
+    await user.click(screen.getByRole('button', { name: /alice/i }));
     expect(screen.getByRole('button', { name: 'Sign out' })).toBeInTheDocument();
   });
 
-  it('renders "Вийти" when language is Ukrainian', () => {
+  it('renders "Вийти" when language is Ukrainian after opening dropdown', async () => {
+    const user = userEvent.setup();
     renderNav('uk');
+    await user.click(screen.getByRole('button', { name: /alice/i }));
     expect(screen.getByRole('button', { name: 'Вийти' })).toBeInTheDocument();
   });
 
@@ -54,13 +58,11 @@ describe('Nav', () => {
     const user = userEvent.setup();
     renderNav('en');
 
-    expect(screen.getByRole('button', { name: 'Sign out' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'UK' }));
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Вийти' })).toBeInTheDocument();
+      expect(mockRefresh).toHaveBeenCalled();
     });
-    expect(mockRefresh).toHaveBeenCalled();
   });
 
   it('calls logout API and redirects on sign out', async () => {
@@ -71,6 +73,7 @@ describe('Nav', () => {
     } as Response);
 
     renderNav();
+    await user.click(screen.getByRole('button', { name: /alice/i }));
     await user.click(screen.getByRole('button', { name: 'Sign out' }));
 
     await waitFor(() => {

@@ -46,6 +46,13 @@ function initSchema(db: Database.Database) {
       full_tank INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS user_settings (
+      user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+      currency TEXT NOT NULL DEFAULT 'EUR',
+      mileage_unit TEXT NOT NULL DEFAULT 'km',
+      fuel_unit TEXT NOT NULL DEFAULT 'L'
+    );
   `);
 }
 

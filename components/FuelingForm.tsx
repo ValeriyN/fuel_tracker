@@ -9,6 +9,8 @@ import { uk } from 'date-fns/locale/uk';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Fueling } from '@/lib/types';
 import { useTranslation } from './LanguageProvider';
+import { useUnits } from './UnitsProvider';
+import { currencySymbol } from '@/lib/units';
 
 registerLocale('en', enGB);
 registerLocale('uk', uk);
@@ -39,6 +41,8 @@ function dateToIso(date: Date): string {
 export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
   const router = useRouter();
   const { t, lang } = useTranslation();
+  const units = useUnits();
+  const sym = currencySymbol(units.currency);
   const isEdit = !!initial;
 
   const [date, setDate] = useState<Date>(initial?.date ? parseIsoDate(initial.date) : new Date());
@@ -153,7 +157,7 @@ export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
       </div>
 
       <div>
-        <label htmlFor="fueling-mileage" className="block text-sm font-medium text-gray-700 mb-1">{t('mileageKm')}</label>
+        <label htmlFor="fueling-mileage" className="block text-sm font-medium text-gray-700 mb-1">{t('mileageKm')} ({units.mileage})</label>
         <input
           id="fueling-mileage"
           type="number"
@@ -169,7 +173,7 @@ export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="fueling-amount" className="block text-sm font-medium text-gray-700 mb-1">{t('amountL')}</label>
+          <label htmlFor="fueling-amount" className="block text-sm font-medium text-gray-700 mb-1">{t('amountL')} ({units.fuel})</label>
           <input
             id="fueling-amount"
             type="number"
@@ -183,7 +187,7 @@ export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
           />
         </div>
         <div>
-          <label htmlFor="fueling-total" className="block text-sm font-medium text-gray-700 mb-1">{t('totalCost')} (€)</label>
+          <label htmlFor="fueling-total" className="block text-sm font-medium text-gray-700 mb-1">{t('totalCost')} ({sym})</label>
           <input
             id="fueling-total"
             type="number"
@@ -199,9 +203,9 @@ export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
       </div>
 
       <div className="bg-gray-50 rounded-xl px-4 py-3 flex justify-between items-center">
-        <span className="text-sm text-gray-600">{t('pricePerLitre')}</span>
+        <span className="text-sm text-gray-600">{t('pricePerLitre')} ({sym}/{units.fuel})</span>
         <span className="text-lg font-semibold text-gray-900">
-          {computedPricePerL !== '—' ? `${computedPricePerL} €` : '—'}
+          {computedPricePerL !== '—' ? `${computedPricePerL} ${sym}` : '—'}
         </span>
       </div>
 

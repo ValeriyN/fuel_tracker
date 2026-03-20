@@ -35,3 +35,10 @@ export interface SessionPayload {
   userId: number;
   username: string;
 }
+
+export interface UserSettings {
+  user_id: number;
+  currency: string;
+  mileage_unit: string;
+  fuel_unit: string;
+}

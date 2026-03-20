@@ -6,6 +6,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import FuelingForm from '@/components/FuelingForm';
 import { LanguageProvider } from '@/components/LanguageProvider';
+import { UnitsProvider } from '@/components/UnitsProvider';
+import { DEFAULT_UNITS } from '@/lib/units';
 import type { Fueling } from '@/lib/types';
 
 const mockPush = vi.fn();
@@ -32,7 +34,9 @@ const EXISTING_FUELING: Fueling = {
 function renderForm(props?: { initial?: Fueling }) {
   return render(
     <LanguageProvider initialLang="en">
-      <FuelingForm vehicleId={10} {...props} />
+      <UnitsProvider initial={DEFAULT_UNITS}>
+        <FuelingForm vehicleId={10} {...props} />
+      </UnitsProvider>
     </LanguageProvider>
   );
 }
@@ -50,7 +54,8 @@ describe('FuelingForm — add mode', () => {
     expect(screen.getByLabelText('Fuel Station')).toBeInTheDocument();
     expect(screen.getByLabelText('Mileage (km)')).toBeInTheDocument();
     expect(screen.getByLabelText('Amount (L)')).toBeInTheDocument();
-    expect(screen.getByLabelText('Price per litre (€)')).toBeInTheDocument();
+    expect(screen.getByLabelText('Total cost (€)')).toBeInTheDocument();
+
     expect(screen.getByLabelText('Full tank')).toBeInTheDocument();
   });
 
@@ -58,7 +63,9 @@ describe('FuelingForm — add mode', () => {
   async function fillRequiredFields(user: ReturnType<typeof userEvent.setup>) {
     await user.type(screen.getByLabelText('Mileage (km)'), '125000');
     await user.type(screen.getByLabelText('Amount (L)'), '40');
-    await user.type(screen.getByLabelText('Price per litre (€)'), '1.659');
+    await user.type(screen.getByLabelText('Total cost (€)'), '66.36');
+
+
   }
 
   it('shows "Add Fueling" submit button', () => {
@@ -71,16 +78,17 @@ describe('FuelingForm — add mode', () => {
     expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
   });
 
-  it('computes total cost as user types amount and price', async () => {
+  it('computes price per litre as user types amount and total cost', async () => {
     const user = userEvent.setup();
     renderForm();
 
     await user.type(screen.getByLabelText('Amount (L)'), '40');
-    await user.type(screen.getByLabelText('Price per litre (€)'), '1.659');
+    await user.type(screen.getByLabelText('Total cost (€)'), '66.36');
 
-    // 40 * 1.659 = 66.36
+
+    // 66.36 / 40 = 1.659 → displayed as 1.66
     await waitFor(() => {
-      expect(screen.getByText(/66\.36 €/)).toBeInTheDocument();
+      expect(screen.getByText(/1\.66 €/)).toBeInTheDocument();
     });
   });
 
@@ -134,6 +142,7 @@ describe('FuelingForm — edit mode', () => {
     expect(screen.getByLabelText('Fuel Station')).toHaveValue('BP');
     expect(screen.getByLabelText('Mileage (km)')).toHaveValue(120000);
     expect(screen.getByLabelText('Amount (L)')).toHaveValue(35);
+
   });
 
   it('PUTs to correct endpoint on save', async () => {
@@ -156,13 +165,15 @@ describe('FuelingForm — edit mode', () => {
 
   it('calls DELETE and navigates when delete is confirmed', async () => {
     const user = userEvent.setup();
-    vi.stubGlobal('confirm', vi.fn().mockReturnValue(true));
     vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ ok: true }),
     } as Response);
 
     renderForm({ initial: EXISTING_FUELING });
+    // First click shows inline confirmation panel
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    // Second click on the confirmation Delete button triggers the actual delete
     await user.click(screen.getByRole('button', { name: 'Delete' }));
 
     await waitFor(() => {
@@ -176,10 +187,12 @@ describe('FuelingForm — edit mode', () => {
 
   it('does NOT call DELETE when confirm is cancelled', async () => {
     const user = userEvent.setup();
-    vi.stubGlobal('confirm', vi.fn().mockReturnValue(false));
 
     renderForm({ initial: EXISTING_FUELING });
+    // First click shows inline confirmation panel
     await user.click(screen.getByRole('button', { name: 'Delete' }));
+    // Click Cancel to dismiss
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
     expect(global.fetch).not.toHaveBeenCalled();
   });
@@ -189,7 +202,9 @@ describe('FuelingForm — Ukrainian language', () => {
   it('renders labels in Ukrainian', () => {
     render(
       <LanguageProvider initialLang="uk">
-        <FuelingForm vehicleId={10} />
+        <UnitsProvider initial={DEFAULT_UNITS}>
+          <FuelingForm vehicleId={10} />
+        </UnitsProvider>
       </LanguageProvider>
     );
     expect(screen.getByText('Дата')).toBeInTheDocument();

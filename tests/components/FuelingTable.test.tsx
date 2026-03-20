@@ -5,6 +5,8 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import FuelingTable from '@/components/FuelingTable';
 import { LanguageProvider } from '@/components/LanguageProvider';
+import { UnitsProvider } from '@/components/UnitsProvider';
+import { DEFAULT_UNITS } from '@/lib/units';
 import type { Fueling } from '@/lib/types';
 
 vi.mock('next/navigation', () => ({
@@ -43,7 +45,9 @@ const FUELINGS: Fueling[] = [
 function renderTable(fuelings = FUELINGS) {
   return render(
     <LanguageProvider initialLang="en">
-      <FuelingTable fuelings={fuelings} vehicleId={10} />
+      <UnitsProvider initial={DEFAULT_UNITS}>
+        <FuelingTable fuelings={fuelings} vehicleId={10} />
+      </UnitsProvider>
     </LanguageProvider>
   );
 }
@@ -57,6 +61,7 @@ describe('FuelingTable', () => {
     expect(screen.getByText('Amount (L)')).toBeInTheDocument();
     expect(screen.getByText('Price (€/L)')).toBeInTheDocument();
     expect(screen.getByText('Total (€)')).toBeInTheDocument();
+
     expect(screen.getByText('Full')).toBeInTheDocument();
   });
 
@@ -88,7 +93,9 @@ describe('FuelingTable', () => {
   it('renders headers in Ukrainian when language is uk', () => {
     render(
       <LanguageProvider initialLang="uk">
-        <FuelingTable fuelings={FUELINGS} vehicleId={10} />
+        <UnitsProvider initial={DEFAULT_UNITS}>
+          <FuelingTable fuelings={FUELINGS} vehicleId={10} />
+        </UnitsProvider>
       </LanguageProvider>
     );
     expect(screen.getByText('Дата і час')).toBeInTheDocument();

@@ -1,6 +1,6 @@
 import { getSession } from '@/lib/auth';
 import getDb from '@/lib/db';
-import { Vehicle, Fueling, DbFueling } from '@/lib/types';
+import { Vehicle, Fueling, DbFueling, UserSettings } from '@/lib/types';
 import { getT } from '@/lib/i18n';
 import { getLanguage } from '@/lib/language';
 import { notFound } from 'next/navigation';
@@ -8,6 +8,8 @@ import Link from 'next/link';
 import FuelingTable from '@/components/FuelingTable';
 import AddFuelingModal from '@/components/AddFuelingModal';
 import EditVehicleModal from '@/components/EditVehicleModal';
+import ImportFuelingsModal from '@/components/ImportFuelingsModal';
+import { UserUnits, DEFAULT_UNITS, Currency, MileageUnit, FuelUnit, currencySymbol, consumptionLabel } from '@/lib/units';
 
 export default async function VehiclePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -21,6 +23,15 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
     .get(Number(id), session!.userId) as Vehicle | undefined;
 
   if (!vehicle) notFound();
+
+  const settingsRow = db
+    .prepare('SELECT * FROM user_settings WHERE user_id = ?')
+    .get(session!.userId) as UserSettings | undefined;
+  const units: UserUnits = settingsRow
+    ? { currency: settingsRow.currency as Currency, mileage: settingsRow.mileage_unit as MileageUnit, fuel: settingsRow.fuel_unit as FuelUnit }
+    : DEFAULT_UNITS;
+  const sym = currencySymbol(units.currency);
+  const consLabel = consumptionLabel(units.mileage, units.fuel);
 
   const fuelings: Fueling[] = (db
     .prepare('SELECT * FROM fuelings WHERE vehicle_id = ? ORDER BY date DESC, time DESC')
@@ -54,6 +65,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
         </div>
         <div className="flex items-center gap-2">
           <EditVehicleModal vehicle={vehicle} />
+          <ImportFuelingsModal vehicleId={vehicle.id} />
           <AddFuelingModal vehicleId={vehicle.id} />
         </div>
       </div>
@@ -66,21 +78,21 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
           </div>
           <div className="bg-white border border-gray-200 rounded-xl p-4">
             <p className="text-xs text-gray-500 uppercase tracking-wide">{t('maxMileage')}</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{totalMileage} km</p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">{totalMileage} {units.mileage}</p>
           </div>
           {avgConsumption != null && (
             <div className="bg-white border border-gray-200 rounded-xl p-4">
               <p className="text-xs text-gray-500 uppercase tracking-wide">{t('avgConsumption')}</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{avgConsumption.toFixed(2)} L/100km</p>
+              <p className="text-2xl font-bold text-gray-900 mt-1">{avgConsumption.toFixed(2)} {consLabel}</p>
             </div>
           )}
           <div className="bg-white border border-gray-200 rounded-xl p-4">
             <p className="text-xs text-gray-500 uppercase tracking-wide">{t('totalFuel')}</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{totalLiters.toFixed(1)} L</p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">{totalLiters.toFixed(1)} {units.fuel}</p>
           </div>
           <div className="bg-white border border-gray-200 rounded-xl p-4">
             <p className="text-xs text-gray-500 uppercase tracking-wide">{t('totalSpent')}</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{totalCost.toFixed(2)} €</p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">{totalCost.toFixed(2)} {sym}</p>
           </div>
         </div>
       )}
