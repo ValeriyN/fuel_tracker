@@ -120,7 +120,7 @@ export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
           <DatePicker
             id="fueling-date"
             selected={date}
-            onChange={d => d && setDate(d)}
+            onChange={(d: Date | null) => d && setDate(d)}
             dateFormat="dd.MM.yyyy"
             locale={lang}
             required
