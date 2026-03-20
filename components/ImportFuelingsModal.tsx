@@ -125,16 +125,28 @@ export default function ImportFuelingsModal({ vehicleId }: Props) {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    <p className="block text-sm font-medium text-gray-700 mb-1.5">
                       {t('addFile')}
-                    </label>
+                    </p>
                     <input
+                      id="csv-file-input"
                       ref={fileRef}
                       type="file"
                       accept=".csv,text/csv"
                       onChange={e => setSelectedFile(e.target.files?.[0] ?? null)}
-                      className="w-full text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border file:border-gray-300 file:text-sm file:font-medium file:text-gray-700 file:bg-white hover:file:bg-gray-50 file:transition-colors"
+                      className="sr-only"
                     />
+                    <div className="flex items-center gap-3">
+                      <label
+                        htmlFor="csv-file-input"
+                        className="cursor-pointer border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium px-3 py-1.5 rounded-lg transition-colors"
+                      >
+                        Choose File
+                      </label>
+                      <span className="text-sm text-gray-500 truncate">
+                        {selectedFile ? selectedFile.name : 'No file chosen'}
+                      </span>
+                    </div>
                   </div>
 
                   {error && <p className="text-sm text-red-600">{error}</p>}
