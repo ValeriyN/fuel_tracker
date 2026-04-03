@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import { IMaskInput, IMask } from 'react-imask';
@@ -52,9 +52,37 @@ export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
   const [mileage, setMileage] = useState(initial?.mileage_km?.toString() ?? '');
   const [totalCost, setTotalCost] = useState(initial?.total_cost_eur?.toString() ?? '');
   const [fullTank, setFullTank] = useState(initial?.full_tank ?? true);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [removeImage, setRemoveImage] = useState(false);
+  const [viewingImage, setViewingImage] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+
+  const existingImageUrl = isEdit && initial?.invoice_image && !removeImage
+    ? `/api/vehicles/${vehicleId}/fuelings/${initial.id}/image`
+    : null;
+
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null;
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      setError(t('photoTooLarge'));
+      return;
+    }
+    setImageFile(file);
+    setRemoveImage(false);
+    setImagePreview(URL.createObjectURL(file));
+  }
+
+  function handleRemoveImage() {
+    setImageFile(null);
+    setImagePreview(null);
+    setRemoveImage(true);
+    if (imageInputRef.current) imageInputRef.current.value = '';
+  }
 
   const computedPricePerL =
     amount && totalCost && parseFloat(amount) > 0
@@ -86,12 +114,25 @@ export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
     });
 
     const data = await res.json();
-    setLoading(false);
 
     if (!res.ok) {
+      setLoading(false);
       setError(data.error || t('failedSave'));
       return;
     }
+
+    const fuelingId = isEdit ? initial!.id : data.id;
+    const imageBase = `/api/vehicles/${vehicleId}/fuelings/${fuelingId}/image`;
+
+    if (imageFile) {
+      const form = new FormData();
+      form.append('image', imageFile);
+      await fetch(imageBase, { method: 'PUT', body: form });
+    } else if (removeImage) {
+      await fetch(imageBase, { method: 'DELETE' });
+    }
+
+    setLoading(false);
 
     if (onSuccess) {
       onSuccess();
@@ -113,6 +154,7 @@ export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
   }
 
   return (
+    <>
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="grid grid-cols-2 gap-4">
         <div>
@@ -220,6 +262,52 @@ export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
         <label htmlFor="full_tank" className="text-sm font-medium text-gray-700">{t('fullTank')}</label>
       </div>
 
+      {/* Invoice photo */}
+      <div>
+        <p className="block text-sm font-medium text-gray-700 mb-1.5">{t('invoicePhoto')}</p>
+        <input
+          id="invoice-image-input"
+          ref={imageInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="sr-only"
+        />
+        {(imagePreview || existingImageUrl) ? (
+          <div className="space-y-2">
+            <div className="relative inline-block">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imagePreview ?? existingImageUrl!}
+                alt="Invoice"
+                className="h-32 w-auto rounded-lg border border-gray-200 object-cover cursor-pointer"
+                onClick={() => setViewingImage(true)}
+              />
+            </div>
+            <div className="flex gap-2">
+              <label
+                htmlFor="invoice-image-input"
+                className="cursor-pointer text-xs text-blue-600 hover:underline"
+              >
+                {t('addPhoto')}
+              </label>
+              <span className="text-xs text-gray-300">|</span>
+              <button type="button" onClick={handleRemoveImage} className="text-xs text-red-500 hover:underline">
+                {t('removePhoto')}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <label
+            htmlFor="invoice-image-input"
+            className="cursor-pointer inline-flex items-center gap-2 border border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 text-gray-600 text-sm px-4 py-2.5 rounded-lg transition-colors"
+          >
+            <span>📷</span>
+            <span>{t('addPhoto')}</span>
+          </label>
+        )}
+      </div>
+
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       <div className="flex gap-3 pt-2">
@@ -265,5 +353,27 @@ export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
         </div>
       )}
     </form>
+
+      {viewingImage && (imagePreview || existingImageUrl) && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4"
+          onClick={() => setViewingImage(false)}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imagePreview ?? existingImageUrl!}
+            alt="Invoice"
+            className="max-w-full max-h-full rounded-xl shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          />
+          <button
+            onClick={() => setViewingImage(false)}
+            className="absolute top-4 right-4 text-white text-3xl leading-none hover:text-gray-300"
+          >
+            ×
+          </button>
+        </div>
+      )}
+    </>
   );
 }

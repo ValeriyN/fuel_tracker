@@ -54,6 +54,9 @@ function initSchema(db: Database.Database) {
       fuel_unit TEXT NOT NULL DEFAULT 'L'
     );
   `);
+
+  // Migrations for columns added after initial schema
+  try { db.exec(`ALTER TABLE fuelings ADD COLUMN invoice_image TEXT`); } catch { /* already exists */ }
 }
 
 export default getDb;

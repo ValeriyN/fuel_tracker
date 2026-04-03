@@ -116,6 +116,12 @@ const translations = {
     csvExampleRow: 'Example row:',
     addFile: 'Add file',
     importFileBtn: 'Import file',
+    // Invoice photo
+    invoicePhoto: 'Invoice photo',
+    addPhoto: 'Add photo',
+    removePhoto: 'Remove photo',
+    viewPhoto: 'View photo',
+    photoTooLarge: 'Image too large (max 10 MB)',
   },
   uk: {
     // Nav
@@ -228,6 +234,12 @@ const translations = {
     csvExampleRow: 'Приклад рядка:',
     addFile: 'Додати файл',
     importFileBtn: 'Імпортувати файл',
+    // Invoice photo
+    invoicePhoto: 'Фото чеку',
+    addPhoto: 'Додати фото',
+    removePhoto: 'Видалити фото',
+    viewPhoto: 'Переглянути фото',
+    photoTooLarge: 'Зображення занадто велике (макс. 10 МБ)',
   },
 } as const;
 

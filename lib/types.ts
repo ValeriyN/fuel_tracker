@@ -24,6 +24,7 @@ export interface Fueling {
   price_per_liter_eur: number;
   total_cost_eur: number;
   full_tank: boolean;
+  invoice_image?: string | null;
   created_at: string;
 }
 

@@ -19,6 +19,7 @@ export default function FuelingTable({ fuelings, vehicleId }: Props) {
   const sym = currencySymbol(units.currency);
   const router = useRouter();
   const [editing, setEditing] = useState<Fueling | null>(null);
+  const [viewingImageUrl, setViewingImageUrl] = useState<string | null>(null);
 
   const close = useCallback(() => setEditing(null), []);
 
@@ -86,12 +87,23 @@ export default function FuelingTable({ fuelings, vehicleId }: Props) {
                   )}
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <button
-                    onClick={() => setEditing(f)}
-                    className="text-blue-600 hover:underline text-xs"
-                  >
-                    {t('edit')}
-                  </button>
+                  <div className="flex items-center justify-end gap-2">
+                    {f.invoice_image && (
+                      <button
+                        onClick={() => setViewingImageUrl(`/api/vehicles/${vehicleId}/fuelings/${f.id}/image`)}
+                        className="text-gray-400 hover:text-gray-600 text-base leading-none"
+                        title={t('viewPhoto')}
+                      >
+                        📷
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setEditing(f)}
+                      className="text-blue-600 hover:underline text-xs"
+                    >
+                      {t('edit')}
+                    </button>
+                  </div>
                 </td>
               </tr>
               );
@@ -100,6 +112,27 @@ export default function FuelingTable({ fuelings, vehicleId }: Props) {
         </table>
       </div>
     </div>
+
+    {viewingImageUrl && (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+        onClick={() => setViewingImageUrl(null)}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={viewingImageUrl}
+          alt="Invoice"
+          className="max-w-full max-h-full rounded-xl shadow-2xl"
+          onClick={e => e.stopPropagation()}
+        />
+        <button
+          onClick={() => setViewingImageUrl(null)}
+          className="absolute top-4 right-4 text-white text-3xl leading-none hover:text-gray-300"
+        >
+          ×
+        </button>
+      </div>
+    )}
 
     {editing && (
         <div
