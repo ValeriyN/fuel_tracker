@@ -1,3 +1,4 @@
+import { version } from '@/package.json';
 import { getSession } from '@/lib/auth';
 import getDb from '@/lib/db';
 import { getT } from '@/lib/i18n';
@@ -21,6 +22,9 @@ export default async function SettingsPage() {
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-8">{t('settingsTitle')}</h1>
       <SettingsForm initial={units} />
+      <p className="mt-8 text-xs text-gray-400 text-center">
+        v{version}+{process.env.NEXT_PUBLIC_GIT_COMMITS} · {process.env.NEXT_PUBLIC_GIT_DATE}
+      </p>
     </div>
   );
 }
