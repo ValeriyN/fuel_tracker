@@ -19,6 +19,11 @@ export const metadata: Metadata = {
   description: "Track your vehicle fuelings",
 };
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
+
 export default async function RootLayout({
   children,
 }: Readonly<{

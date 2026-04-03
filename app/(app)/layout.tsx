@@ -33,7 +33,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="min-h-screen bg-gray-50">
       <UnitsProvider initial={units}>
         <Nav username={session.username} />
-        <main className="max-w-5xl mx-auto px-4 py-8">{children}</main>
+        <main className="max-w-5xl mx-auto px-4 py-4 md:py-8">{children}</main>
       </UnitsProvider>
     </div>
   );

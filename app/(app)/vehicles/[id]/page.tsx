@@ -56,14 +56,14 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
           {t('backToVehicles')}
         </Link>
       </div>
-      <div className="flex items-center justify-between mb-6 mt-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 mt-2 gap-3">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{vehicle.name}</h1>
           <p className="text-sm text-gray-500 mt-0.5">
             {vehicle.type === 'car' ? t('car') : t('motorcycle')} &middot; {vehicle.fuel_type}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <EditVehicleModal vehicle={vehicle} />
           <ImportFuelingsModal vehicleId={vehicle.id} />
           <AddFuelingModal vehicleId={vehicle.id} />
@@ -71,7 +71,7 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
       </div>
 
       {fuelings.length > 0 && (
-        <div className="grid grid-cols-5 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
           <div className="bg-white border border-gray-200 rounded-xl p-4">
             <p className="text-xs text-gray-500 uppercase tracking-wide">{t('fuelingsCount')}</p>
             <p className="text-2xl font-bold text-gray-900 mt-1">{fuelings.length}</p>

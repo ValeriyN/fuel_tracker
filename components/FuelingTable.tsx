@@ -39,7 +39,70 @@ export default function FuelingTable({ fuelings, vehicleId }: Props) {
 
   return (
     <>
-    <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+    {/* Mobile card list */}
+    <div className="sm:hidden space-y-3">
+      {fuelings.map((f, i) => {
+        const prev = fuelings[i + 1];
+        const diff = prev != null ? f.mileage_km - prev.mileage_km : null;
+        const daysDiff = prev != null
+          ? Math.round((new Date(f.date).getTime() - new Date(prev.date).getTime()) / 86400000)
+          : null;
+        return (
+          <div key={f.id} className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <p className="text-sm font-medium text-gray-900">{f.date} {f.time}</p>
+                {f.station_name && <p className="text-xs text-gray-500 mt-0.5">{f.station_name}</p>}
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {f.full_tank && (
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-100 text-green-700 font-bold text-xs">✓</span>
+                )}
+                {f.invoice_image && (
+                  <button
+                    onClick={() => setViewingImageUrl(`/api/vehicles/${vehicleId}/fuelings/${f.id}/image`)}
+                    className="text-gray-400 hover:text-gray-600 text-base leading-none"
+                    title={t('viewPhoto')}
+                  >
+                    📷
+                  </button>
+                )}
+                <button onClick={() => setEditing(f)} className="text-blue-600 hover:underline text-xs font-medium">
+                  {t('edit')}
+                </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-2 border-t border-gray-100 pt-3">
+              <div>
+                <p className="text-xs text-gray-400">{t('amountL')} ({units.fuel})</p>
+                <p className="text-sm font-mono font-medium text-gray-900 mt-0.5">{f.fuel_amount_l.toFixed(2)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-400">{t('pricePerL')}</p>
+                <p className="text-sm font-mono text-gray-900 mt-0.5">{f.price_per_liter_eur.toFixed(2)} {sym}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-400">{t('totalEur')} ({sym})</p>
+                <p className="text-sm font-mono font-semibold text-gray-900 mt-0.5">{f.total_cost_eur.toFixed(2)}</p>
+              </div>
+            </div>
+            {(diff != null || daysDiff != null) && (
+              <div className="flex gap-4 text-xs text-gray-400 border-t border-gray-100 pt-2">
+                {diff != null && (
+                  <span>{t('mileageDiff')}: <span className={`font-medium ${diff < 0 ? 'text-red-500' : 'text-gray-700'}`}>{diff} {units.mileage}</span></span>
+                )}
+                {daysDiff != null && (
+                  <span>{t('days')}: <span className="font-medium text-gray-700">{daysDiff}</span></span>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+
+    {/* Desktop table */}
+    <div className="hidden sm:block bg-white border border-gray-200 rounded-2xl overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
