@@ -9,7 +9,6 @@ import FuelingTable from '@/components/FuelingTable';
 import AddFuelingModal from '@/components/AddFuelingModal';
 import EditVehicleModal from '@/components/EditVehicleModal';
 import ImportFuelingsModal from '@/components/ImportFuelingsModal';
-import FuelChart from '@/components/FuelChart';
 import { Card, CardContent } from '@/components/ui/card';
 import { UserUnits, DEFAULT_UNITS, Currency, MileageUnit, FuelUnit, currencySymbol, consumptionLabel } from '@/lib/units';
 import { Fuel, Gauge, Wallet, Droplets, TrendingUp, ArrowLeft } from 'lucide-react';
@@ -93,14 +92,6 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
             ))}
           </div>
 
-          {fuelings.length >= 2 && (
-            <Card className="mb-6">
-              <CardContent className="p-4 pt-5">
-                <p className="text-sm font-medium text-gray-700 mb-4">Cumulative cost & fueled volume</p>
-                <FuelChart fuelings={fuelings} currencySymbol={sym} fuelUnit={units.fuel} />
-              </CardContent>
-            </Card>
-          )}
         </>
       )}
 

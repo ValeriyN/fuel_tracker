@@ -11,7 +11,7 @@ import { Car, Bike, Fuel, Gauge, Wallet } from 'lucide-react';
 
 interface VehicleStats {
   vehicle_id: number;
-  count: number;
+  total_volume: number | null;
   total_mileage: number | null;
   total_cost: number | null;
 }
@@ -27,7 +27,7 @@ export default async function VehiclesPage() {
 
   const statsRows = db
     .prepare(`
-      SELECT vehicle_id, COUNT(*) as count, (MAX(mileage_km) - MIN(mileage_km)) as total_mileage, SUM(total_cost_eur) as total_cost
+      SELECT vehicle_id, SUM(fuel_amount_l) as total_volume, (MAX(mileage_km) - MIN(mileage_km)) as total_mileage, SUM(total_cost_eur) as total_cost
       FROM fuelings
       WHERE vehicle_id IN (SELECT id FROM vehicles WHERE user_id = ?)
       GROUP BY vehicle_id
@@ -76,8 +76,8 @@ export default async function VehiclesPage() {
                         <div className="flex items-center gap-1.5">
                           <Fuel className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
                           <div>
-                            <p className="text-xs text-gray-400">{t('fuelingsCount')}</p>
-                            <p className="text-sm font-semibold text-gray-800">{s.count}</p>
+                            <p className="text-xs text-gray-400">{t('totalFuel')}</p>
+                            <p className="text-sm font-semibold text-gray-800">{s.total_volume?.toFixed(1)} L</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-1.5">

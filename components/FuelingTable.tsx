@@ -203,7 +203,7 @@ export default function FuelingTable({ fuelings, vehicleId }: Props) {
           className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4 bg-black/50"
           onClick={e => { if (e.target === e.currentTarget) close(); }}
         >
-          <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full sm:max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full sm:max-w-md max-h-[85dvh] overflow-y-auto">
             <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100">
               <h2 className="text-lg font-semibold text-gray-900">{t('editFueling')}</h2>
               <button
