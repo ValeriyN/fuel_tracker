@@ -79,7 +79,7 @@ export default function AddVehicleModal() {
               <h2 className="text-lg font-semibold text-gray-900">{t('addVehicleTitle')}</h2>
               <button
                 onClick={close}
-                className="text-gray-400 hover:text-gray-600 transition-colors text-xl leading-none"
+                className="text-gray-400 hover:text-gray-600 transition-colors text-2xl leading-none p-1 -mr-1"
               >
                 ×
               </button>

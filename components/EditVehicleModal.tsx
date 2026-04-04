@@ -103,7 +103,7 @@ export default function EditVehicleModal({ vehicle }: Props) {
               <h2 className="text-lg font-semibold text-gray-900">{t('editVehicle')}</h2>
               <button
                 onClick={close}
-                className="text-gray-400 hover:text-gray-600 transition-colors text-xl leading-none"
+                className="text-gray-400 hover:text-gray-600 transition-colors text-2xl leading-none p-1 -mr-1"
               >
                 ×
               </button>
