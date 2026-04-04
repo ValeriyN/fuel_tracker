@@ -9,7 +9,10 @@ function gitInfo() {
       .toString().trim();
     return { commits, date };
   } catch {
-    return { commits: "0", date: "unknown" };
+    // Fallback for Railway/Nixpacks where .git is not in the build context
+    const sha = process.env.RAILWAY_GIT_COMMIT_SHA?.slice(0, 7);
+    const date = new Date().toISOString().slice(0, 10);
+    return { commits: sha ?? "?", date };
   }
 }
 
