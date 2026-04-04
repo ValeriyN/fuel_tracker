@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { Camera } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import { IMaskInput, IMask } from 'react-imask';
@@ -302,7 +303,7 @@ export default function FuelingForm({ vehicleId, initial, onSuccess }: Props) {
             htmlFor="invoice-image-input"
             className="cursor-pointer inline-flex items-center gap-2 border border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 text-gray-600 text-sm px-4 py-2.5 rounded-lg transition-colors"
           >
-            <span>📷</span>
+            <Camera className="w-4 h-4" />
             <span>{t('addPhoto')}</span>
           </label>
         )}

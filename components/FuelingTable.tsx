@@ -7,6 +7,7 @@ import FuelingForm from './FuelingForm';
 import { useTranslation } from './LanguageProvider';
 import { useUnits } from './UnitsProvider';
 import { currencySymbol } from '@/lib/units';
+import { Camera } from 'lucide-react';
 
 interface Props {
   fuelings: Fueling[];
@@ -154,10 +155,10 @@ export default function FuelingTable({ fuelings, vehicleId }: Props) {
                     {f.invoice_image && (
                       <button
                         onClick={() => setViewingImageUrl(`/api/vehicles/${vehicleId}/fuelings/${f.id}/image`)}
-                        className="text-gray-400 hover:text-gray-600 text-base leading-none"
+                        className="text-gray-400 hover:text-primary transition-colors"
                         title={t('viewPhoto')}
                       >
-                        📷
+                        <Camera className="w-4 h-4" />
                       </button>
                     )}
                     <button
@@ -199,7 +200,7 @@ export default function FuelingTable({ fuelings, vehicleId }: Props) {
 
     {editing && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center sm:p-4 bg-black/50"
+          className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4 bg-black/50"
           onClick={e => { if (e.target === e.currentTarget) close(); }}
         >
           <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full sm:max-w-md max-h-[90vh] overflow-y-auto">

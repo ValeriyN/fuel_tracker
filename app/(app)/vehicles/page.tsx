@@ -5,6 +5,9 @@ import { getT } from '@/lib/i18n';
 import { getLanguage } from '@/lib/language';
 import Link from 'next/link';
 import AddVehicleModal from '@/components/AddVehicleModal';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Car, Bike, Fuel, Gauge, Wallet } from 'lucide-react';
 
 interface VehicleStats {
   vehicle_id: number;
@@ -49,37 +52,52 @@ export default async function VehiclesPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           {vehicles.map(v => {
             const s = statsMap.get(v.id);
+            const VehicleIcon = v.type === 'car' ? Car : Bike;
             return (
-              <Link
-                key={v.id}
-                href={`/vehicles/${v.id}`}
-                className="bg-white border border-gray-200 rounded-2xl p-5 hover:border-blue-400 hover:shadow-sm transition-all"
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h2 className="font-semibold text-gray-900 text-lg">{v.name}</h2>
-                    <p className="text-sm text-gray-500 mt-1">
-                      {v.type === 'car' ? t('car') : t('motorcycle')} &middot; {v.fuel_type}
-                    </p>
-                  </div>
-                  <span className="text-2xl">{v.type === 'car' ? '🚗' : '🏍️'}</span>
-                </div>
-                {s && (
-                  <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-3 gap-2">
-                    <div>
-                      <p className="text-xs text-gray-400">{t('fuelingsCount')}</p>
-                      <p className="text-sm font-semibold text-gray-800 mt-0.5">{s.count}</p>
+              <Link key={v.id} href={`/vehicles/${v.id}`} className="group block">
+                <Card className="h-full transition-all group-hover:border-primary/50 group-hover:shadow-md">
+                  <CardContent className="p-5">
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h2 className="font-semibold text-gray-900 text-lg leading-tight">{v.name}</h2>
+                        <div className="flex items-center gap-2 mt-1.5">
+                          <Badge variant="secondary" className="text-xs">
+                            {v.type === 'car' ? t('car') : t('motorcycle')}
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">{v.fuel_type}</Badge>
+                        </div>
+                      </div>
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <VehicleIcon className="w-5 h-5 text-primary" />
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs text-gray-400">{t('maxMileage')}</p>
-                      <p className="text-sm font-semibold text-gray-800 mt-0.5">{s.total_mileage?.toLocaleString()} km</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-400">{t('totalSpent')}</p>
-                      <p className="text-sm font-semibold text-gray-800 mt-0.5">{s.total_cost?.toFixed(2)} €</p>
-                    </div>
-                  </div>
-                )}
+                    {s && (
+                      <div className="grid grid-cols-3 gap-3 pt-4 border-t border-gray-100">
+                        <div className="flex items-center gap-1.5">
+                          <Fuel className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                          <div>
+                            <p className="text-xs text-gray-400">{t('fuelingsCount')}</p>
+                            <p className="text-sm font-semibold text-gray-800">{s.count}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Gauge className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                          <div>
+                            <p className="text-xs text-gray-400">{t('maxMileage')}</p>
+                            <p className="text-sm font-semibold text-gray-800">{s.total_mileage?.toLocaleString()} km</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Wallet className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                          <div>
+                            <p className="text-xs text-gray-400">{t('totalSpent')}</p>
+                            <p className="text-sm font-semibold text-gray-800">{s.total_cost?.toFixed(2)} €</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               </Link>
             );
           })}

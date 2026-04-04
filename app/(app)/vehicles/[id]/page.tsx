@@ -9,7 +9,10 @@ import FuelingTable from '@/components/FuelingTable';
 import AddFuelingModal from '@/components/AddFuelingModal';
 import EditVehicleModal from '@/components/EditVehicleModal';
 import ImportFuelingsModal from '@/components/ImportFuelingsModal';
+import FuelChart from '@/components/FuelChart';
+import { Card, CardContent } from '@/components/ui/card';
 import { UserUnits, DEFAULT_UNITS, Currency, MileageUnit, FuelUnit, currencySymbol, consumptionLabel } from '@/lib/units';
+import { Fuel, Gauge, Wallet, Droplets, TrendingUp, ArrowLeft } from 'lucide-react';
 
 export default async function VehiclePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -49,10 +52,8 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
   return (
     <div>
       <div className="flex items-center gap-3 mb-1">
-        <Link href="/vehicles" className="inline-flex items-center gap-1.5 text-gray-500 hover:text-blue-600 transition-colors text-sm font-medium group">
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
+        <Link href="/vehicles" className="inline-flex items-center gap-1.5 text-gray-500 hover:text-primary transition-colors text-sm font-medium group">
+          <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
           {t('backToVehicles')}
         </Link>
       </div>
@@ -71,30 +72,36 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
       </div>
 
       {fuelings.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
-          <div className="bg-white border border-gray-200 rounded-xl p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">{t('fuelingsCount')}</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{fuelings.length}</p>
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
+            {[
+              { label: t('fuelingsCount'), value: fuelings.length, unit: '', icon: Fuel },
+              { label: t('maxMileage'), value: totalMileage.toLocaleString(), unit: units.mileage, icon: Gauge },
+              ...(avgConsumption != null ? [{ label: t('avgConsumption'), value: avgConsumption.toFixed(2), unit: consLabel, icon: TrendingUp }] : []),
+              { label: t('totalFuel'), value: totalLiters.toFixed(1), unit: units.fuel, icon: Droplets },
+              { label: t('totalSpent'), value: totalCost.toFixed(2), unit: sym, icon: Wallet },
+            ].map(({ label, value, unit, icon: Icon }) => (
+              <Card key={label}>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">{label}</p>
+                    <Icon className="w-3.5 h-3.5 text-muted-foreground" />
+                  </div>
+                  <p className="text-2xl font-bold text-foreground">{value}<span className="text-sm font-normal text-muted-foreground ml-1">{unit}</span></p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-          <div className="bg-white border border-gray-200 rounded-xl p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">{t('maxMileage')}</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{totalMileage} {units.mileage}</p>
-          </div>
-          {avgConsumption != null && (
-            <div className="bg-white border border-gray-200 rounded-xl p-4">
-              <p className="text-xs text-gray-500 uppercase tracking-wide">{t('avgConsumption')}</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{avgConsumption.toFixed(2)} {consLabel}</p>
-            </div>
+
+          {fuelings.length >= 2 && (
+            <Card className="mb-6">
+              <CardContent className="p-4 pt-5">
+                <p className="text-sm font-medium text-gray-700 mb-4">Cumulative cost & fueled volume</p>
+                <FuelChart fuelings={fuelings} currencySymbol={sym} fuelUnit={units.fuel} />
+              </CardContent>
+            </Card>
           )}
-          <div className="bg-white border border-gray-200 rounded-xl p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">{t('totalFuel')}</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{totalLiters.toFixed(1)} {units.fuel}</p>
-          </div>
-          <div className="bg-white border border-gray-200 rounded-xl p-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide">{t('totalSpent')}</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{totalCost.toFixed(2)} {sym}</p>
-          </div>
-        </div>
+        </>
       )}
 
       {fuelings.length === 0 ? (
