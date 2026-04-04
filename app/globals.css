@@ -128,4 +128,8 @@
   html {
     @apply font-sans;
   }
+  /* Prevent iOS Safari from zooming in on focused inputs */
+  input, select, textarea {
+    font-size: max(16px, 1em);
+  }
 }
