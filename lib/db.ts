@@ -53,6 +53,21 @@ function initSchema(db: Database.Database) {
       mileage_unit TEXT NOT NULL DEFAULT 'km',
       fuel_unit TEXT NOT NULL DEFAULT 'L'
     );
+
+    CREATE TABLE IF NOT EXISTS expenses (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      vehicle_id INTEGER NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+      date TEXT NOT NULL,
+      expense_type TEXT NOT NULL
+        CHECK(expense_type IN ('maintenance','repair','tires','accessories','other')),
+      station_name TEXT NOT NULL DEFAULT '',
+      mileage_km INTEGER,
+      total_cost_eur REAL,
+      operations TEXT,
+      description TEXT,
+      document_image TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
   `);
 
   // Migrations for columns added after initial schema

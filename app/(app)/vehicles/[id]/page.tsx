@@ -1,12 +1,13 @@
 import { getSession } from '@/lib/auth';
 import getDb from '@/lib/db';
-import { Vehicle, Fueling, DbFueling, UserSettings } from '@/lib/types';
+import { Vehicle, Fueling, DbFueling, DbExpense, Expense, UserSettings } from '@/lib/types';
 import { getT } from '@/lib/i18n';
 import { getLanguage } from '@/lib/language';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import FuelingTable from '@/components/FuelingTable';
+import VehicleTabs from '@/components/VehicleTabs';
 import AddFuelingModal from '@/components/AddFuelingModal';
+import AddExpenseModal from '@/components/AddExpenseModal';
 import EditVehicleModal from '@/components/EditVehicleModal';
 import ImportFuelingsModal from '@/components/ImportFuelingsModal';
 import { Card, CardContent } from '@/components/ui/card';
@@ -40,6 +41,11 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
     .all(vehicle.id) as DbFueling[])
     .map(f => ({ ...f, full_tank: Boolean(f.full_tank) }));
 
+  const expenses: Expense[] = (db
+    .prepare('SELECT * FROM expenses WHERE vehicle_id = ? ORDER BY date DESC')
+    .all(vehicle.id) as DbExpense[])
+    .map(e => ({ ...e, operations: e.operations ? JSON.parse(e.operations) : null }));
+
   const totalLiters = fuelings.reduce((s, f) => s + f.fuel_amount_l, 0);
   const totalCost = fuelings.reduce((s, f) => s + f.total_cost_eur, 0);
   const totalMileage = fuelings.length >= 2
@@ -63,46 +69,43 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
             {vehicle.type === 'car' ? t('car') : t('motorcycle')} &middot; {vehicle.fuel_type}
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
           <EditVehicleModal vehicle={vehicle} />
           <ImportFuelingsModal vehicleId={vehicle.id} />
           <AddFuelingModal vehicleId={vehicle.id} />
+          <AddExpenseModal vehicleId={vehicle.id} />
         </div>
       </div>
 
       {fuelings.length > 0 && (
-        <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
-            {[
-              { label: t('fuelingsCount'), value: fuelings.length, unit: '', icon: Fuel },
-              { label: t('maxMileage'), value: totalMileage.toLocaleString(), unit: units.mileage, icon: Gauge },
-              ...(avgConsumption != null ? [{ label: t('avgConsumption'), value: avgConsumption.toFixed(2), unit: consLabel, icon: TrendingUp }] : []),
-              { label: t('totalFuel'), value: totalLiters.toFixed(1), unit: units.fuel, icon: Droplets },
-              { label: t('totalSpent'), value: totalCost.toFixed(2), unit: sym, icon: Wallet },
-            ].map(({ label, value, unit, icon: Icon }) => (
-              <Card key={label}>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">{label}</p>
-                    <Icon className="w-3.5 h-3.5 text-muted-foreground" />
-                  </div>
-                  <p className="text-2xl font-bold text-foreground">{value}<span className="text-sm font-normal text-muted-foreground ml-1">{unit}</span></p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-        </>
-      )}
-
-      {fuelings.length === 0 ? (
-        <div className="text-center py-16 text-gray-500">
-          <p className="text-lg mb-2">{t('noFuelings')}</p>
-          <p className="text-sm">{t('noFuelingsDesc')}</p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
+          {[
+            { label: t('fuelingsCount'), value: fuelings.length, unit: '', icon: Fuel },
+            { label: t('maxMileage'), value: totalMileage.toLocaleString(), unit: units.mileage, icon: Gauge },
+            ...(avgConsumption != null ? [{ label: t('avgConsumption'), value: avgConsumption.toFixed(2), unit: consLabel, icon: TrendingUp }] : []),
+            { label: t('totalFuel'), value: totalLiters.toFixed(1), unit: units.fuel, icon: Droplets },
+            { label: t('totalSpent'), value: totalCost.toFixed(2), unit: sym, icon: Wallet },
+          ].map(({ label, value, unit, icon: Icon }) => (
+            <Card key={label}>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">{label}</p>
+                  <Icon className="w-3.5 h-3.5 text-muted-foreground" />
+                </div>
+                <p className="text-2xl font-bold text-foreground">{value}<span className="text-sm font-normal text-muted-foreground ml-1">{unit}</span></p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      ) : (
-        <FuelingTable fuelings={fuelings} vehicleId={vehicle.id} />
       )}
+
+      <VehicleTabs
+        fuelings={fuelings}
+        expenses={expenses}
+        vehicleId={vehicle.id}
+        noFuelingsText={t('noFuelings')}
+        noFuelingsDescText={t('noFuelingsDesc')}
+      />
     </div>
   );
 }

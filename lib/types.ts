@@ -32,6 +32,26 @@ export interface DbFueling extends Omit<Fueling, 'full_tank'> {
   full_tank: number;
 }
 
+export type ExpenseType = 'maintenance' | 'repair' | 'tires' | 'accessories' | 'other';
+
+export interface Expense {
+  id: number;
+  vehicle_id: number;
+  date: string;
+  expense_type: ExpenseType;
+  station_name: string;
+  mileage_km: number | null;
+  total_cost_eur: number | null;
+  operations: string[] | null;
+  description: string | null;
+  document_image: string | null;
+  created_at: string;
+}
+
+export interface DbExpense extends Omit<Expense, 'operations'> {
+  operations: string | null;
+}
+
 export interface SessionPayload {
   userId: number;
   username: string;

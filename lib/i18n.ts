@@ -122,6 +122,38 @@ const translations = {
     removePhoto: 'Remove photo',
     viewPhoto: 'View photo',
     photoTooLarge: 'Image too large (max 10 MB)',
+    // Other expenses
+    otherExpenses: 'Other Expenses',
+    addExpense: '+ Add Expense',
+    addExpenseTitle: 'Add Expense',
+    editExpense: 'Edit Expense',
+    expenseType: 'Expense Type',
+    expenseMaintenance: 'Maintenance',
+    expenseRepair: 'Repair',
+    expenseTires: 'Tires Replacement',
+    expenseAccessories: 'Accessories / Parts',
+    expenseOther: 'Other',
+    operations: 'Operations performed',
+    expenseDescription: 'Description',
+    maintenanceComment: 'Additional comment',
+    serviceStation: 'Service Station',
+    voiceInput: 'Voice input',
+    listening: 'Listening…',
+    attachDocument: 'Attach document',
+    noExpenses: 'No expenses yet',
+    confirmDeleteExpense: 'Delete this expense record?',
+    failedSaveExpense: 'Failed to save expense',
+    // Maintenance operations
+    opOilChange: 'Engine oil change',
+    opOilFilter: 'Engine oil filter replacement',
+    opTireMaintenance: 'Tire maintenance',
+    opAirFilter: 'Engine air filter replacement',
+    opCabinFilter: 'Cabin air filter replacement',
+    opFluids: 'Fluid level monitoring',
+    opBrakes: 'Brake system inspection',
+    opBattery: 'Battery maintenance',
+    opSparkPlugs: 'Spark plugs replacement',
+    opTimingBelt: 'Timing belt replacement',
   },
   uk: {
     // Nav
@@ -240,6 +272,38 @@ const translations = {
     removePhoto: 'Видалити фото',
     viewPhoto: 'Переглянути фото',
     photoTooLarge: 'Зображення занадто велике (макс. 10 МБ)',
+    // Other expenses
+    otherExpenses: 'Інші витрати',
+    addExpense: '+ Додати витрату',
+    addExpenseTitle: 'Додати витрату',
+    editExpense: 'Редагувати витрату',
+    expenseType: 'Тип витрати',
+    expenseMaintenance: 'Техобслуговування',
+    expenseRepair: 'Ремонт',
+    expenseTires: 'Заміна шин',
+    expenseAccessories: 'Аксесуари / Запчастини',
+    expenseOther: 'Інше',
+    operations: 'Виконані роботи',
+    expenseDescription: 'Опис',
+    maintenanceComment: 'Додатковий коментар',
+    serviceStation: 'Сервісна станція',
+    voiceInput: 'Голосове введення',
+    listening: 'Слухаю…',
+    attachDocument: 'Прикріпити документ',
+    noExpenses: 'Витрат ще немає',
+    confirmDeleteExpense: 'Видалити цей запис витрати?',
+    failedSaveExpense: 'Помилка збереження витрати',
+    // Maintenance operations
+    opOilChange: 'Заміна моторного масла',
+    opOilFilter: 'Заміна масляного фільтра',
+    opTireMaintenance: 'Обслуговування шин',
+    opAirFilter: 'Заміна повітряного фільтра двигуна',
+    opCabinFilter: 'Заміна салонного фільтра',
+    opFluids: 'Перевірка рівня рідин',
+    opBrakes: 'Перевірка гальмівної системи',
+    opBattery: 'Обслуговування акумулятора',
+    opSparkPlugs: 'Заміна свічок запалювання',
+    opTimingBelt: 'Заміна ременя ГРМ',
   },
 } as const;
 
@@ -248,6 +312,29 @@ export type TranslationKey = keyof typeof translations.en;
 export function getT(lang: Language) {
   return (key: TranslationKey): string => translations[lang][key];
 }
+
+// Maintenance operation keys stored in DB as JSON array
+export const MAINTENANCE_OPERATIONS: { key: string; labelKey: TranslationKey }[] = [
+  { key: 'oil_change',       labelKey: 'opOilChange' },
+  { key: 'oil_filter',       labelKey: 'opOilFilter' },
+  { key: 'tire_maintenance', labelKey: 'opTireMaintenance' },
+  { key: 'air_filter',       labelKey: 'opAirFilter' },
+  { key: 'cabin_filter',     labelKey: 'opCabinFilter' },
+  { key: 'fluids',           labelKey: 'opFluids' },
+  { key: 'brakes',           labelKey: 'opBrakes' },
+  { key: 'battery',          labelKey: 'opBattery' },
+  { key: 'spark_plugs',      labelKey: 'opSparkPlugs' },
+  { key: 'timing_belt',      labelKey: 'opTimingBelt' },
+];
+
+// Expense type options: value stored in DB (always English)
+export const EXPENSE_TYPE_KEYS: { value: string; labelKey: TranslationKey }[] = [
+  { value: 'maintenance', labelKey: 'expenseMaintenance' },
+  { value: 'repair',      labelKey: 'expenseRepair' },
+  { value: 'tires',       labelKey: 'expenseTires' },
+  { value: 'accessories', labelKey: 'expenseAccessories' },
+  { value: 'other',       labelKey: 'expenseOther' },
+];
 
 // Fuel type options: value stored in DB (always English), label translated
 export const FUEL_TYPE_KEYS: { value: string; labelKey: TranslationKey }[] = [
