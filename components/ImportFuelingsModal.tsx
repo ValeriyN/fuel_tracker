@@ -4,14 +4,20 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from './LanguageProvider';
 
+interface Vehicle {
+  id: number;
+  name: string;
+}
+
 interface Props {
-  vehicleId: number;
+  vehicles: Vehicle[];
 }
 
 type Step = 'upload' | 'confirm' | 'done';
 
-export default function ImportFuelingsModal({ vehicleId }: Props) {
+export default function ImportFuelingsModal({ vehicles }: Props) {
   const [open, setOpen] = useState(false);
+  const [vehicleId, setVehicleId] = useState<number>(vehicles[0]?.id ?? 0);
   const [step, setStep] = useState<Step>('upload');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -104,6 +110,23 @@ export default function ImportFuelingsModal({ vehicleId }: Props) {
             <div className="px-6 py-5 space-y-4">
               {step === 'upload' && (
                 <>
+                  {/* Vehicle selector */}
+                  <div>
+                    <label htmlFor="import-vehicle" className="block text-sm font-medium text-gray-700 mb-1">
+                      {t('selectVehicle')}
+                    </label>
+                    <select
+                      id="import-vehicle"
+                      value={vehicleId}
+                      onChange={e => setVehicleId(Number(e.target.value))}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      {vehicles.map(v => (
+                        <option key={v.id} value={v.id}>{v.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
                   <div className="bg-gray-50 rounded-xl p-4 space-y-2">
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('csvFileFormat')}</p>
                     <p className="text-xs text-gray-600">{t('csvFileFormatDesc')}</p>
@@ -153,7 +176,7 @@ export default function ImportFuelingsModal({ vehicleId }: Props) {
 
                   <button
                     onClick={handleImportFileClick}
-                    disabled={!selectedFile}
+                    disabled={!selectedFile || !vehicleId}
                     className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg py-2 text-sm font-medium transition-colors"
                   >
                     {t('importFileBtn')}
