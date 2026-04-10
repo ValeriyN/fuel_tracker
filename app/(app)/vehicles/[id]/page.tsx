@@ -9,7 +9,6 @@ import VehicleTabs from '@/components/VehicleTabs';
 import AddFuelingModal from '@/components/AddFuelingModal';
 import AddExpenseModal from '@/components/AddExpenseModal';
 import EditVehicleModal from '@/components/EditVehicleModal';
-import ImportFuelingsModal from '@/components/ImportFuelingsModal';
 import { Card, CardContent } from '@/components/ui/card';
 import { UserUnits, DEFAULT_UNITS, Currency, MileageUnit, FuelUnit, currencySymbol, consumptionLabel } from '@/lib/units';
 import { Fuel, Gauge, Wallet, Droplets, TrendingUp, ArrowLeft } from 'lucide-react';
@@ -71,7 +70,6 @@ export default async function VehiclePage({ params }: { params: Promise<{ id: st
         </div>
         <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
           <EditVehicleModal vehicle={vehicle} />
-          <ImportFuelingsModal vehicleId={vehicle.id} />
           <AddFuelingModal vehicleId={vehicle.id} />
           <AddExpenseModal vehicleId={vehicle.id} />
         </div>

@@ -104,8 +104,9 @@ const translations = {
     settingsSaved: 'Saved!',
     cancel: 'Cancel',
     // Import fuelings
-    importFuelings: 'Import',
+    importFuelings: 'Import Fuelings',
     importFuelingsTitle: 'Import Fuelings',
+    selectVehicle: 'Select Vehicle',
     deleteBeforeImport: 'Delete existing fuelings before import?',
     yesDeleteExisting: 'Yes, delete existing',
     noKeepExisting: 'No, keep existing',
@@ -254,8 +255,9 @@ const translations = {
     settingsSaved: 'Збережено!',
     cancel: 'Скасувати',
     // Import fuelings
-    importFuelings: 'Імпорт',
+    importFuelings: 'Імпорт заправок',
     importFuelingsTitle: 'Імпорт заправок',
+    selectVehicle: 'Оберіть транспорт',
     deleteBeforeImport: 'Видалити існуючі заправки перед імпортом?',
     yesDeleteExisting: 'Так, видалити існуючі',
     noKeepExisting: 'Ні, зберегти існуючі',
